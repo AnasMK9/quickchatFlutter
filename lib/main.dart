@@ -114,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      "Start whatsapp conversations without creating new contacts",
+                      "Send whatsapp messages to unsaved numbers instantly",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white, fontSize: 30),
                     ),
