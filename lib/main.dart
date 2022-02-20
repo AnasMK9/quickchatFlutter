@@ -1,9 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'dart:js' as js;
 import 'dart:math';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,6 +14,7 @@ void main() {
 const Color mainTheme = Color(0xFF128C7E);
 
 class MyApp extends StatelessWidget {
+
   const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
@@ -24,7 +27,6 @@ class MyApp extends StatelessWidget {
           currentFocus.focusedChild?.unfocus();
         }
       },
-
       child: MaterialApp(
         title: 'Quickchat for whatsapp',
         theme: ThemeData(
@@ -37,6 +39,7 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
+          fontFamily: 'Roboto',
           primarySwatch: Colors.teal,
         ),
         home: const MyHomePage(title: 'Quick chat for whatsapp'),
@@ -71,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List arr = [];
   final _shakeKey = GlobalKey<ShakeWidgetState>();
 
+
   @override
   void dispose() {
     controller.dispose();
@@ -86,7 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
+        resizeToAvoidBottomInset:false,
+        appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         leading: const Icon(FontAwesomeIcons.whatsapp),
@@ -96,211 +101,258 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Container(
-          padding: EdgeInsets.all(30),
+          padding: const EdgeInsets.fromLTRB(30, 20, 30, 10),
 
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+          // height: MediaQuery.of(context).size.height,
           //color: mainTheme,
 
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               image: DecorationImage(
-                  image: AssetImage('assets/wallpaper.png'),
+                  image: AssetImage('assets/images/wallpaper.png'),
                   fit: BoxFit.cover)),
-          child: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Send whatsapp messages to unsaved numbers instantly",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 30),
-                    ),
-                    ShakeWidget(
-                      key: _shakeKey,
-                      // 5. configure the animation parameters
-                      shakeCount: 3,
-                      shakeOffset: 10,
-                      shakeDuration: Duration(milliseconds: 400),
-
-                      child: Container(
-                        padding: EdgeInsets.all(30),
-                        child: InternationalPhoneNumberInput(
-                          initialValue: PhoneNumber(isoCode: 'JO'),
-                          selectorTextStyle:
-                              TextStyle(color: Colors.white, fontSize: 16),
-                          textFieldController: controller,
-                          textStyle:
-                              TextStyle(color: Colors.white, fontSize: 16),
-                          inputDecoration: InputDecoration(
-                            border: UnderlineInputBorder(),
-                            hintText: "Phone number",
-                            hintStyle:
-                                TextStyle(color: Colors.white70, fontSize: 16),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          const Text(
+                            "Send whatsapp messages to unsaved numbers instantly",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: Colors.white, fontSize: 30),
                           ),
-                          selectorConfig: SelectorConfig(
-                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                            setSelectorButtonAsPrefixIcon: true,
-                            leadingPadding: 20,
-                            useEmoji: true,
-                          ),
-                          formatInput: true,
-                          autoFocus: true,
-                          autoValidateMode: AutovalidateMode.onUserInteraction,
-                          onInputChanged: (PhoneNumber num) {
-                            print(num.phoneNumber);
-                            // formKey.save();
-                          },
-                          onInputValidated: (bool value) {
-                            print("onInputValidated " + value.toString());
-                            // setState(() {
-                            //   _phoneIsValid = value;
-                            // });
-                          },
-                          onSaved: (PhoneNumber number) {
-                            setState(() {
-                              _phoneNumber = (number.phoneNumber)!;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      children: [
-                        SizedBox(
-                          height: 50,
-                          width: 250,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                print('MSG BUTTON');
-                                final form = formKey.currentState;
+                          ShakeWidget(
+                            key: _shakeKey,
+                            // 5. configure the animation parameters
+                            shakeCount: 3,
+                            shakeOffset: 10,
+                            shakeDuration: const Duration(milliseconds: 400),
 
-                                if (form != null && !form.validate()) {
-                                  _shakeKey.currentState?.shake();
-                                } else {
-                                  form?.save();
-                                  print(urll + _phoneNumber);
-                                  js.context.callMethod(
-                                      'open', [urll + _phoneNumber]);
-                                }
-                                // js.context.callMethod('open', [urll+_phoneNumber]);
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(30, 25, 30, 5),
+                              child: InternationalPhoneNumberInput(
+                                initialValue: PhoneNumber(isoCode: 'JO'),
+                                selectorTextStyle: const TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                                textFieldController: controller,
+                                textStyle: const TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                                inputDecoration: const InputDecoration(
+                                  enabledBorder: UnderlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white)),
+                                  hintText: "Phone number",
+                                  hintStyle: TextStyle(
+                                      color: Colors.white70, fontSize: 16),
+                                ),
+                                selectorConfig: const SelectorConfig(
+                                  selectorType:
+                                      PhoneInputSelectorType.BOTTOM_SHEET,
+                                  setSelectorButtonAsPrefixIcon: true,
+                                  leadingPadding: 15,
+                                  useEmoji: true,
+                                ),
+                                formatInput: true,
+                                autoFocus: true,
+                                autoValidateMode:
+                                    AutovalidateMode.onUserInteraction,
+                                onInputChanged: (PhoneNumber num) {
 
-                                // processPhoneNumber();
-                              });
-                            },
-                            style: defButton(Colors.teal),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.chat),
-                                  Container(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    "Start conversation",
-                                    style: TextStyle(fontSize: 17),
-                                  )
-                                ],
+                                },
+
+                                onSaved: (PhoneNumber number) {
+                                  setState(() {
+                                    _phoneNumber = (number.phoneNumber)!;
+                                  });
+                                },
                               ),
                             ),
                           ),
-                        ),
-                        SizedBox(
-                          width: 250,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                print('QR Button');
-                                final form = formKey.currentState;
-
-                                if (form != null && !form.validate()) {
-                                  _shakeKey.currentState?.shake();
-                                } else {
-                                  form?.save();
-                                  print(urll + _phoneNumber);
-                                  if (arr.isEmpty) {
-                                    arr.add(QrImage(
-                                      data: urll + _phoneNumber,
-                                      version: QrVersions.auto,
-                                      size: 300,
-                                      backgroundColor: Colors.white,
-                                      padding: EdgeInsets.all(10),
-                                    ));
-                                  } else {
-                                    arr[0] = QrImage(
-                                      data: urll + _phoneNumber,
-                                      version: QrVersions.auto,
-                                      size: 300,
-                                      backgroundColor: Colors.white,
-                                      padding: EdgeInsets.all(10),
-                                    );
-                                  }
-                                }
-                                // js.context.callMethod('open', [urll+_phoneNumber]);
-
-                                // processPhoneNumber();
-                              });
-                            },
-                            style: defButton((Colors.grey[800])!),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(Icons.qr_code),
-                                  Container(
-                                    width: 8,
-                                  ),
-                                  Text("Get QR code",
-                                      style: TextStyle(fontSize: 17))
-                                ],
-                              ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
+                            child: Text(
+                              'Disclaimer: Your numbers are kept in the browser, no private data is sent to our servers',
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                              style: TextStyle(
+                                  color: Colors.red[300],
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
-                        )
-                      ],
-                    ),
-                    Container(
-                      height: 10,
-                      width: 10,
-                    ),
-                    Text(
-                      "Not affiliated with whatsapp",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                    arr.isEmpty
-                        ? Container()
-                        : Container(
-                            child: Column(children: [
-                              arr[0],
-                              Container(
-                                width: 10,
-                                height: 10,
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              SizedBox(
+                                height: 50,
+                                width: 250,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      final form = formKey.currentState;
+                                      if (form != null && !form.validate()) {
+                                        _shakeKey.currentState?.shake();
+                                      } else {
+                                        form?.save();
+                                        js.context.callMethod(
+                                            'open', [urll + _phoneNumber]);
+                                      }
+                                    });
+                                  },
+                                  style: defButton(Colors.teal),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.chat),
+                                        Container(
+                                          width: 8,
+                                        ),
+                                        const Text(
+                                          "Start conversation",
+                                          style: TextStyle(fontSize: 16),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ),
-                              Text(
-                                'Save the QR Code to start a conversation with ${_phoneNumber} when scanned',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.white),
+                              SizedBox(
+                                width: 250,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      final form = formKey.currentState;
+
+                                      if (form != null && !form.validate()) {
+                                        _shakeKey.currentState?.shake();
+                                      } else {
+                                        form?.save();
+                                        if (arr.isEmpty) {
+                                          arr.add(buildQrImage());
+                                        } else {
+                                          arr[0] = buildQrImage();
+                                        }
+                                      }
+
+                                    });
+                                  },
+                                  style: defButton((Colors.grey[800])!),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.qr_code),
+                                        Container(
+                                          width: 8,
+                                        ),
+                                        const Text("Get QR code",
+                                            style: TextStyle(fontSize: 16))
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               )
-                            ]),
-                            padding: EdgeInsets.all(15),
+                            ],
                           ),
-                    SizedBox.fromSize(size: Size(10, 10))
-                  ]),
-            ),
+                          const SizedBox(
+                            height: 10,
+                            width: 10,
+                          ),
+                          const Text(
+                            "Not affiliated with whatsapp",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                decoration: TextDecoration.underline),
+                          ),
+                          arr.isEmpty
+                              ? Container()
+                              : Container(
+                                  child: Column(children: [
+                                    arr[0],
+                                    const SizedBox(
+                                      width: 10,
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      'Save the QR Code to start a conversation with $_phoneNumber when scanned',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(color: Colors.white),
+                                    )
+                                  ]),
+                                  padding: const EdgeInsets.all(15),
+                                ),
+                          SizedBox.fromSize(size: const Size(15, 15)),
+                        ]),
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  // Container(
+                  //   padding: EdgeInsets.all(10),
+                  //   decoration: BoxDecoration(
+                  //     boxShadow: [BoxShadow(color: Colors.black54,spreadRadius: 1, blurRadius: 1)],
+                  //     border: Border.all(color: Colors.red, width: 2),
+                  //     borderRadius: BorderRadius.circular(5),
+                  //     color: Colors.red[100],
+                  //   ),
+                  //   child: Text(
+                  //     'Disclaimer: Your numbers are kept in the browser, no private data is sent to our servers',
+                  //     textAlign: TextAlign.center,
+                  //     softWrap: true,
+                  //     style: TextStyle(
+                  //         color: Colors.red, fontWeight: FontWeight.bold),
+                  //   ),
+                  // ),SizedBox(width: 10,height: 10,),
+                  RichText(
+                    text: TextSpan(children: [
+                      const TextSpan(
+                          text: 'For inquiries: ',
+                          style: TextStyle(color: Colors.white)),
+                      TextSpan(
+                          text: 'contact@anasmk9.me',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              const url = 'mailto:contact@anasmk9.me';
+                              if (await canLaunch(url)) {
+                                await launch(url, forceSafariVC: false);
+                              }
+                            })
+                    ]),
+                  ),
+                ],
+              )
+            ],
           ),
         ),
       ),
     );
+  }
+
+  QrImage buildQrImage() {
+    return QrImage(
+        data: urll + _phoneNumber,
+        version: QrVersions.auto,
+        size: 300,
+        backgroundColor: Colors.white,
+        padding: const EdgeInsets.all(10),
+        );
   }
 
   ButtonStyle defButton(Color fillColor) {
@@ -313,7 +365,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class SineCurve extends Curve {
-  SineCurve({this.count = 3});
+  const SineCurve({this.count = 3});
 
   final double count;
 
@@ -365,7 +417,7 @@ class ShakeWidgetState extends AnimationControllerState<ShakeWidget> {
   ShakeWidgetState(Duration duration) : super(duration);
 
   // 1. create a Tween
-  late Animation<double> _sineAnimation = Tween(
+  late final Animation<double> _sineAnimation = Tween(
     begin: 0.0,
     end: 1.0,
     // 2. animate it with a CurvedAnimation
